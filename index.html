@@ -1,0 +1,673 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tuah Terminal</title>
+    <link rel="icon" type="image/png" href="images/hlKBS9U.png">
+    <meta property="og:image" content="images/BFXeUMb.png">
+    <meta property="og:title" content="Tuah Terminal">
+    <meta property="og:description" content="Spit on dat terminal!">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'VT323', monospace;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #terminal {
+            width: 80%;
+            max-width: 800px;
+            height: 70%;
+            background-color: rgba(10, 49, 97, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 20; /* Update: Increased z-index */
+            animation: terminalAppear 1s ease-out;
+        }
+
+        @keyframes terminalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #terminal-header {
+            background-color: #b31942;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #terminal-title {
+            color: #fff;
+            font-weight: bold;
+            animation: titleGlow 2s infinite alternate;
+            font-size: 1.2em;
+        }
+
+        @keyframes titleGlow {
+            from {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #ff00de, 0 0 35px #ff00de, 0 0 40px #ff00de, 0 0 50px #ff00de, 0 0 75px #ff00de;
+            }
+            to {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #ff00de, 0 0 70px #ff00de, 0 0 80px #ff00de, 0 0 100px #ff00de, 0 0 150px #ff00de;
+            }
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-button:hover {
+            transform: scale(1.2);
+        }
+
+        #terminal-content {
+            height: calc(100% - 40px);
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 18px;
+        }
+
+        #input-line {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        #prompt {
+            color: #b31942;
+            margin-right: 5px;
+            animation: promptBlink 1s infinite;
+        }
+
+        @keyframes promptBlink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        #user-input {
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: inherit;
+            flex-grow: 1;
+            outline: none;
+        }
+
+        .response {
+            margin-top: 10px;
+        }
+
+        .traimp-response {
+            color: #b31942;
+            animation: responseFadeIn 0.5s ease-out;
+        }
+
+        @keyframes responseFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #flag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            animation: flagWave 2s infinite ease-in-out;
+        }
+
+        @keyframes flagWave {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(10deg);
+            }
+        }
+
+        #flag-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .flag {
+            position: absolute;
+            font-size: 24px;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: #b31942;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 20px;
+            background-color: #0a3161;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar::after {
+            content: '';
+            display: block;
+            width: 50%;
+            height: 100%;
+            background-color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: loading 2s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .popup-content {
+            background-color: #0a3161;
+            color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            font-family: 'VT323', monospace;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            animation: popupAppear 0.5s ease-out;
+        }
+
+        @keyframes popupAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .close-popup {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-popup:hover,
+        .close-popup:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        #traimp-quote {
+            font-size: 24px;
+            color: #fff;
+            text-align: center;
+        }
+
+        #ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            font-size: 10px;
+            line-height: 1;
+            color: #b31942;
+            margin-bottom: 20px;
+            animation: asciiGlow 2s infinite alternate;
+            text-align: center;
+        }
+
+        @keyframes asciiGlow {
+            from {
+                text-shadow: 0 0 5px #b31942;
+            }
+            to {
+                text-shadow: 0 0 10px #b31942, 0 0 20px #b31942;
+            }
+        }
+
+        .glitch {
+            animation: glitch 1s linear infinite;
+        }
+
+        @keyframes glitch {
+            2%, 64% {
+                transform: translate(2px,0) skew(0deg);
+            }
+            4%, 60% {
+                transform: translate(-2px,0) skew(0deg);
+            }
+            62% {
+                transform: translate(0,0) skew(5deg); 
+            }
+        }
+        #ascii-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 12px; /* Update: Increased font size */
+            line-height: 12px; /* Update: Increased line height */
+            color: rgba(0, 255, 0, 0.3);
+            overflow: hidden;
+            pointer-events: none;
+            display: flex; /* Update: Added display, justify-content, and align-items */
+            justify-content: center; /* Update: Added display, justify-content, and align-items */
+            align-items: center; /* Update: Added display, justify-content, and align-items */
+        }
+
+        @media (max-width: 768px) {
+            #terminal {
+                width: 95%;
+                height: 80%;
+            }
+            #terminal-content {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #terminal-content {
+                font-size: 14px;
+            }
+            #ascii-art {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="ascii-bg">
+<pre>�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀⣀⣀⡀�&nbsp;⣀�&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀⣤⣶⣾⢟⣤⣈�&nbsp;��&nbsp;��&nbsp;�⣍�&nbsp;��&nbsp;�⣯⣑⡒�&nbsp;��&nbsp;�⣄⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀�&nbsp;�&nbsp;��&nbsp;�⢉⣁⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢁⣀�&nbsp;��&nbsp;��&nbsp;�⣈�&nbsp;�⣿�&nbsp;��&nbsp;�⣀�&nbsp;�⢦⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣰�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀⡉�&nbsp;�⣄⡈�&nbsp;��&nbsp;�⣷⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣾⢧�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⡄�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢲⣤�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣸⣷⣾�&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢤�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣿⣿⡿⣶⣦⢂�&nbsp;��&nbsp;�⣄�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢸⣿⢏�&nbsp;�⢹⣯⣻⣧�&nbsp;��&nbsp;�⣇�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣄�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣸⣯⣿�&nbsp;��&nbsp;�⢻⣳⡝�&nbsp;�⣄⡈⢱⡘⡂⢀⣀�&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;�⢂⣀�&nbsp;��&nbsp;��&nbsp;�⣀⡀�&nbsp;��&nbsp;�⢰⡆�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣿⣾⡇�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢲⣬⡙�&nbsp;�⣝⣮⡙�&nbsp;�⣷⣂�&nbsp;�⣈�&nbsp;��&nbsp;�⢄⡀�&nbsp;��&nbsp;��&nbsp;�⢖⡒�&nbsp;�⣯⡀⢬�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣸⣿⣿⣷⣯⡴�&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;�⢿⣿⡷⣽⣒⡬�&nbsp;�⢝⣛�&nbsp;��&nbsp;�⢴�&nbsp;��&nbsp;�⡀�&nbsp;�⢈⣩⣽⡟⣿⣾⡆�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢿⡶⢿�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣽⡦�&nbsp;�⢤⣝�&nbsp;�⣷⣦⣉⡓⣀⢍⡙⣷⣄⡴�&nbsp;�⣡⡖�&nbsp;�⡙⢿⣇⣿�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢸⡿⣛⣤�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣯⣶⣦⣌⣋⢈⣉⣩⣿⣿⣿⣿⣿⣾⣤⣴⣷⣶⣷⣿⢸⣿⣋⡔�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣷⢹⡿�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⡿⣿�&nbsp;�⢸⣿⣿�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢸⡾⢷⣤�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣹⣿⣿⣿⣯�&nbsp;��&nbsp;�⣿⣿⣿�&nbsp;�⢶⣞⣵�&nbsp;�⡼⢹⡟�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢳⡬⢿⡆�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢻⢇⣿⣯⡄�&nbsp;�⣉�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢰⡷⣾�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢋⡾⣷�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢸⣿⣿⢹⡀�&nbsp;�⣿⣦�&nbsp;��&nbsp;��&nbsp;�⣀⣶�&nbsp;�⣰⡟�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀�&nbsp;⣴⣾⡇⣷�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣾⣟⣷�&nbsp;��&nbsp;��&nbsp;�⢸⣿⡆�&nbsp;�⢀⡽�&nbsp;�⢰⡿�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀⣀⣤⣶⣿⣿⣿⣿⡇⢹⣷⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣀⡄⣻�&nbsp;�⡿⢿⣖⣷⡟�&nbsp;�⢿⣦⡬�&nbsp;��&nbsp;�⢻⡧⣤⣀⣀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+   
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣀⣀⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⡇�&nbsp;�⢻⣷⡄�&nbsp;��&nbsp;�⢀⣰�&nbsp;�⢸�&nbsp;��&nbsp;��&nbsp;�⢀⣿�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣄�&nbsp;�⡀⣼�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢤⣄⣀⡀�&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷�&nbsp;��&nbsp;��&nbsp;�⣿⣤�&nbsp;��&nbsp;��&nbsp;�⣤⡷�&nbsp;��&nbsp;�⣤⣾⣷�&nbsp;�⣶⣖�&nbsp;�⣶⡌⡄⣸⣿�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+�&nbsp;��&nbsp;�⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇�&nbsp;��&nbsp;��&nbsp;�⢿⣧�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣾⣿⡿�&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣷⣿⡏⢙⣀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣶⣤⡀�&nbsp;��&nbsp;�⢸⣦⡡�&nbsp;&nbsp;⢄⣀�&nbsp;�&nbsp;��&nbsp;�⢹⡇⢸⡏�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢻⣝�&nbsp;⣤⣾⣿⣿⣿�&nbsp;��&nbsp;�⡏�&nbsp;��&nbsp;��&nbsp;�⡇�&nbsp;�⢱⡆�&nbsp;��&nbsp;��&nbsp;��&nbsp;�⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀⣰
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢉⣿⣿⣭⡉�&nbsp;��&nbsp;�⢰�&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣇�&nbsp;�⢸⣷�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣶⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;⣾⣿⣿⣿⣿⣿⡷⣄�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣿�&nbsp;�⢸⣯⡷⣶⡀�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⣼⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀�&nbsp;��&nbsp;�⢀⡴�&nbsp;�⣇�&nbsp;�⢻⣿⣿⣿⡟�&nbsp;��&nbsp;��&nbsp;�⢦⡀�&nbsp;��&nbsp;�⢻�&nbsp;�⢸⣿⣿⣷⡏�&nbsp;�⣆�&nbsp;��&nbsp;⣾⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;⣿⣿⣿⡐�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢸⡆⢸⣿⣿⣿⡷⣤⢹⣧⢀⣟⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢀⣿⣿⣿⣿⣷�&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;��&nbsp;�⢸⡇⢸⣿⣿⣿⡏⣷�&nbsp;��&nbsp;�⢿⣿⣿⣷⣯⣯
+</pre>
+        </div>
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h1 class="glitch">Initializing Tuah Terminal</h1>
+            <div class="loading-bar"></div>
+        </div>
+    </div>
+    <div id="terminal">
+        <div id="terminal-header">
+            <div>
+                <span class="terminal-button" style="background-color: #ff5f56;"></span>
+                <span class="terminal-button" style="background-color: #ffbd2e;"></span>
+                <span class="terminal-button" style="background-color: #27c93f;"></span>
+            </div>
+            <div id="terminal-title">Tuah Terminal  Hawk Tuah Spit on That Terminal!</div>
+            <div>
+                <span class="terminal-button" style="background-color: #b31942;">_</span>
+                <span class="terminal-button" style="background-color: #b31942;">x</span>
+            </div>
+        </div>
+        <div id="terminal-content">
+            <div id="ascii-art">
+ _               _     
+| |_ _   _  __ _| |__  
+| __| | | |/ _` | '_ \ 
+| |_| |_| | (_| | | | |
+ \__|\__,_|\__,_|_| |_|
+</div>
+            <div id="CA" style="text-align: center; margin-top: 10px; cursor: pointer;" onclick="copyToClipboard('TrUPjEqGpUph6sMJX8C3yYja9u4RcVUGTCkGG4xLrjG')">
+                CA: <span id="CA">TO BE UPDATED</span>
+                <span id="copy-message" style="display: none; color: green; margin-left: 10px;">Copied!</span>
+            </div>
+            <div>Welcome to Tuah Terminal! We're gonna SPIT on SOLANA! Type 'help' for a list of tremendous commands.</div>
+            <div id="input-line">
+                <span id="prompt">$</span>
+                <input type="text" id="user-input" autofocus="">
+            </div>
+        </div>
+    </div>
+    <div id="flag">🇺🇸</div>
+    <div id="flag-rain"><div class="flag" style="left: 22.0135vw; animation-duration: 4.45726s;">🇺🇸</div><div class="flag" style="left: 84.0455vw; animation-duration: 4.92142s;">🇺🇸</div></div>
+
+    <div id="traimp-popup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup">×</span>
+            <p id="traimp-quote"></p>
+        </div>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('user-input');
+        const terminalContent = document.getElementById('terminal-content');
+        const flagRain = document.getElementById('flag-rain');
+        const asciiArt = document.getElementById('ascii-art');
+
+        const traimpResponses = {
+            'help': "I've got the best commands, folks 👌. Try 'twitter', 'telegram','dexscreener'. ",
+            'twitter': "Opening my favorite platform 🐦, the best platform, believe me! 💻",
+            'telegram': "Telegram? 📱 I prefer to send messages through Twitter. But okay, opening it for you. 🤷‍♂️",
+        };
+
+        function addResponse(input, response) {
+            const inputElement = document.createElement('div');
+            inputElement.textContent = `$ ${input}`;
+            terminalContent.insertBefore(inputElement, userInput.parentNode);
+
+            const responseElement = document.createElement('div');
+            responseElement.className = 'response traimp-response';
+            responseElement.textContent = response;
+            terminalContent.insertBefore(responseElement, userInput.parentNode);
+
+            terminalContent.scrollTop = terminalContent.scrollHeight;
+        }
+
+        userInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const input = userInput.value.trim().toLowerCase();
+                if (input === 'clear') {
+                    terminalContent.innerHTML = '';
+                    terminalContent.appendChild(asciiArt.cloneNode(true));
+                    terminalContent.appendChild(document.getElementById('solana-address').cloneNode(true));
+                    terminalContent.appendChild(userInput.parentNode);
+                } else {
+                    let response = traimpResponses[input] || "HAWK TUAK! ";
+                    if (input === 'random') {
+                        response = generateRandomTraimpPhrase();
+                    } else if (input === 'joke') {
+                        response = tellTraimpJoke();
+                    } else if (input === 'compliment') {
+                        response = giveTraimpCompliment();
+                    } else if (input === 'insult') {
+                        response = giveTraimpInsult();
+                    }
+                    addResponse(input, response);
+                    
+                    if (input === 'twitter') {
+                        window.open('https://x.com/', '_blank');
+                    } else if (input === 'telegram') {
+                        window.open('https://t.me/', '_blank');
+                    } else if (input === 'dextools') {
+                        window.open('https://www.dextools.io/app/en/token/', '_blank');
+                    } else if (input === 'dexscreener') {
+                        window.open('https://dexscreener.com/solana/', '_blank');
+                    } else if (input === 'traimpbot') {
+                        window.open('https://t.me/', '_blank');
+                    }
+                }
+                
+                userInput.value = '';
+            }
+        });
+
+        function createFlag() {
+            const flag = document.createElement('div');
+            flag.textContent = '🇺🇸';
+            flag.className = 'flag';
+            flag.style.left = `${Math.random() * 100}vw`;
+            flag.style.animationDuration = `${Math.random() * 2 + 3}s`;
+            flagRain.appendChild(flag);
+
+            setTimeout(() => {
+                flag.remove();
+            }, 5000);
+        }
+
+        setInterval(createFlag, 300);
+
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+        }, 3000);
+
+        const traimpQuotes = [
+            "HAWK TUAH! Spit on that THANG! 🗣️",
+        ];
+
+        function showPopup() {
+            const popup = document.getElementById('traimp-popup');
+            const quoteElement = document.getElementById('traimp-quote');
+            const randomQuote = traimpQuotes[Math.floor(Math.random() * traimpQuotes.length)];
+            quoteElement.textContent = randomQuote;
+            popup.style.display = 'block';
+
+            const closeBtn = document.getElementsByClassName('close-popup')[0];
+            closeBtn.onclick = function() {
+                popup.style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == popup) {
+                    popup.style.display = 'none';
+                }
+            }
+        }
+
+        setInterval(showPopup, 30000); // Show popup every 30 seconds
+
+        function generateRandomTraimpPhrase() {
+            const subjects = ["We", "I", "Americans", "Our administration", "The people", "This generation", "Our democracy", "Our communities", "The future"];
+            const verbs = ["will fight for", "are shaping", "are protecting", "are building", "will ensure", "are defending", "will uplift", "are reimagining", "are securing"];
+            const objects = ["equal rights", "justice for all", "a better future", "progress", "equity", "unity", "our democracy", "opportunity for everyone", "the American dream"];
+            const endings = ["Together.", "With conviction.", "With hope.", "For all of us.", "For the future.", "We rise.", "With strength.", "With purpose.", "In unity.", "Believe in it!"];
+
+
+            const subject = subjects[Math.floor(Math.random() * subjects.length)];
+            const verb = verbs[Math.floor(Math.random() * verbs.length)];
+            const object = objects[Math.floor(Math.random() * objects.length)];
+            const ending = endings[Math.floor(Math.random() * endings.length)];
+
+            return `${subject} ${verb} ${object}. ${ending} 🇺🇸`;
+        }
+
+        function tellTraimpJoke() {
+            const jokes = [
+                "Why did I cross the road? To fight for justice on the other side! 🐔⚖️",
+                "How many people does it take to bring change? Just one with the courage to lead! 🌟💪",
+                "Why don't I ever worry about challenges? Because we rise together, no matter the obstacles! ⛰️✊",
+                "What's my favorite exercise? Lifting others up! 🏋️‍♀️💖",
+                "Why did I become a politician? Because when you see something wrong, you have to do something about it! 💼👩‍⚖️"
+            ];
+            return jokes[Math.floor(Math.random() * jokes.length)];
+        }
+
+        function giveTraimpCompliment() {
+            const compliments = [
+        "You're a leader with conviction and courage. 💪",
+        "You're lifting others up, just like I do. 🌟",
+        "You're paving the way for a more just and equal world. ⚖️",
+        "Your dedication to service is inspiring! 🌎",
+        "You're a true champion for progress and unity. 🤝"
+            ];
+            return compliments[Math.floor(Math.random() * compliments.length)];
+        }
+
+        function giveTraimpInsult() {
+            const insults = [
+                "You're about as reliable as Mitch McConnell on voting rights. 📜",
+                "I've seen stronger convictions at a student council debate. 🎤",
+                "Your unity efforts are lower than a filibuster's success rate. 📉",
+                "You couldn't organize a community picnic, let alone a movement. 🍉",
+                "Your social media presence is quieter than a Supreme Court hearing. 🐦"
+            ];
+            return insults[Math.floor(Math.random() * insults.length)];
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const copyMessage = document.getElementById('copy-message');
+                copyMessage.style.display = 'inline';
+                setTimeout(() => {
+                    copyMessage.style.display = 'none';
+                }, 2000);
+            });
+        }
+
+        // ASCII Art for TRAIMP
+        asciiArt.textContent = `
+  _____ _   _   _    _   _ 
+ |_   _| | | | / \  | | | |
+   | | | | | |/ _ \ | |_| |
+   | | | |_| / ___ \|  _  |
+   |_|  \___/_/   \_\_| |_|
+                           
+`;
+
+        document.getElementById('ascii-bg').innerHTML = `
+<pre>
+                                                                                                    
+                                                                                                    
+                                                    ++**                                            
+                                                    #%%##***                                        
+                                               ####%*#**###*#*** ********                           
+                                              #%#%%#**###%%%%%%**+*#*******                         
+                                            ##%####***######**++++++++++***##                       
+                                           ####**%*#####**#######******+++****                      
+                                           ###**%######**######********###*++*                      
+                                          ###**#%%###***#*###*##****##*+====+=++                    
+                                         ###**#%#******************+=--::::::-+*                    
+                                        #*****######*************+===--------::-+                   
+                                        ******###%#********###**++=====----===-:::                  
+                                       ******##%##*******####****+====----=====--:                  
+                                      *******#####*#*########**+==--===-----------                  
+                                      *******###########%###*+===---===++++*+==----                 
+                                     *****++###############*+=========+++++*##*===-                 
+                                     *****+*##**+*########*+=========+**++++**+=*#*                 
+                                    ******+*#***++*+**###**+========--=+*#%#*==-++*                 
+                                    ******++#+++++***###***+========----+++=-----=                  
+                                    **++**+=+++++*********++++=====--=-----------::                 
+                                   ***++*++=++*+=++****++++++++++===---------=---:::                
+                                   *+*++*++===**+++++**+++++++++++++=========+=====-                
+                                  *++*++*++===++#*++**+++++++++++++++++++++==******+                
+                                  +++*++*++====+*#*=*#*-=+++++++++++++++++==-=+*+++                 
+                                  +++*+++++====++**==**=++++++++++++++++====----=+                  
+                                 **+***++*+=====+**++**++*+++++++++++++++**+++*##*                  
+                          =--==+==++***++*+=====+++*+**#*+*+*++++++++++*****%%###  *                
+                      +=-=++++++*#*****++*+======+=***###*****+++++++****+**+***   +                
+                     ***+=+++*+++******++++======+=**+=****+**+++***++*****###                      
+                     ++++++++++++++*#***=++======++++*+=**********+*++++*****                       
+                    +++++==+++++++++***+=++===--=+++=+#==*##****#***+++++****###                    
+                  +====+==++=++++++=-+++=+++===-=+++=+##=+**##*************==*##                    
+                ++++++=-=+*+*++=++++**++=+++======++==*#*+**#########******+***                     
+             +++****+=+*#%%#=#*+-++-+**+=+++===--=+==+*##*+###%##*+==+++#####*+                     
+          +++**#*++*#%%%%%%%**%%###%#**+=+++====-=++=+*###*#%%%##*+*+++*%%#%%%                      
+        +++*****#%%#%%%%%%%%#*#%#####**+++*++==--=++++*###*%%%%#*+++****###%%%                      
+      +++****#%%%%%%%%%%%%%#%*#%%#*****++***+===-=++++*#%##%@%%#*+++***####%%%                      
+     +++********#%%%%%%%%%%%%**%%##***#++***+=====++++####%%@%%#**+++**#%###%%                      
+    +++******++++*%%%%%%%%%%%**%%###****+****++===+++*###%@%@@%#***++**#%%%###                      
+    ++*********++**#%%%@@@%%%#*#%%###********++==++++*%@@@%@@@%%#***+*#%%%###%                      
+   ****************#%%%%%%%%#**#%%###********++==++**@@@@@%@@@@%%***+*#%%%#%%                       
+   ***************##%%%%@%%%##*#%%####****##**+=++**#@@@@%%@@@@@%#**+##%%*#%@                       
+  ***************####%%@@@%%##*#%%##%###**###**++***@@@@@%@@@@@@%#**+##%**%%                        
+ ****************####%@@@@@%%%##%%%#%%###*###******%@@@@%@@@%%@@@%**+###*#%@                        
+ ***************#####%@@@@@@@%#*%%%%%%%######****##@@@@@%@@@%%@@@%#**##**#%@@                       
+**************#######%@@@@@@%%#*%%%%%@%######***##%@@@@%@@@%%%@@@%#**#***#%@@                       
+***********##########%%@@@@@%%#*%%%%%%%#####****#%@@@@%@@@%%%%%@@%#*****#%@@@@                      
+#*****#*#############%%@@@@@@%##%%%%%%%%###****##**+++#@@@%%%%%@@%#*****#@@@@@@                     
+#**##################%%@@@@@@%###%%%%%@%###***####++=#@@@%%%%%%@@%%****#%@@@@@@@                    
+#*###################%%@@@@@@%%##%%%%%@%###***#%%@@#%@@@@%%%%%%@@%%***##%@@@@@@@@@                  
+####################%%%@@@@@@%%##%%#%%%%###*#*#%%@@@@@@@%%%%%%%@@@%#*###%@@@@@@@@@@@                
+###################%%%@@@@@@@@%##%%%%%%%###**##%%@@@@@@@%%%%%%%@@@%####%@@@@@@@@@@@@@               
+##################%%%@@@@@@@@@%%%%@%%@%%%##**##%%@@@@@@@@%%%@%%@@%####%%@@@@@@@@@@@@@@              
+##################%%@@@@@@@@@@@@%%@%%%%%%##*####%@@@@@%%%%@@@%%@@%###%%%@@@@@@@@@@@@@@      
+</pre>
+        `;
+    </script>
+
+</body></html>
